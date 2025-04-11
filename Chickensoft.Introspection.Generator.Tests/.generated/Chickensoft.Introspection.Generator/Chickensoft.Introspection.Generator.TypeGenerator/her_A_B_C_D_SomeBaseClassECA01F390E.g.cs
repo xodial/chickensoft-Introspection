@@ -8,7 +8,7 @@ partial class A {
   partial class B {
     partial class C {
       partial class D {
-        partial class SomeBaseClass : Chickensoft.Introspection.IIntrospective {
+        partial class SomeBaseClass : Chickensoft.Introspection.IIntrospectiveRef {
           [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
           public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
           

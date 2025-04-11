@@ -18,6 +18,7 @@ public abstract record ScopeNode(
 /// <param name="Parent">Parent node.</param>
 /// <param name="Type">Declared type.</param> 
 /// <param name="TypeChildren">Map of type names to type nodes.</param>
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage] // due to net8 glitch?
 public sealed record TypeTreeNode(
   ScopeNode? Parent,
   DeclaredType Type,
@@ -32,6 +33,7 @@ public sealed record TypeTreeNode(
 /// <param name="Children">Map of child namespaces names to child namespaces.
 /// </param>
 /// <param name="TypeChildren">Map of type names to type nodes.</param>
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage] // due to net8 glitch?
 public sealed record NamespaceNode(
     ScopeNode? Parent,
     string Name,

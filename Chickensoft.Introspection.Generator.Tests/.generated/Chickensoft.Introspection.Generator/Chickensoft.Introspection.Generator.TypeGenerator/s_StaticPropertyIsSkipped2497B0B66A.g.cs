@@ -4,7 +4,7 @@ namespace Chickensoft.Introspection.Generator.Tests.TestCases;
 
 using Chickensoft.Introspection;
 
-partial class StaticPropertyIsSkipped : Chickensoft.Introspection.IIntrospective {
+partial class StaticPropertyIsSkipped : Chickensoft.Introspection.IIntrospectiveRef {
   [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
   public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
   

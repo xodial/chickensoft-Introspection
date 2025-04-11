@@ -7,7 +7,7 @@ using Chickensoft.Introspection;
 partial class A {
   partial class B {
     partial class C {
-      partial class ChildBaseFullyQualified : Chickensoft.Introspection.IIntrospective {
+      partial class ChildBaseFullyQualified : Chickensoft.Introspection.IIntrospectiveRef {
         [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
         

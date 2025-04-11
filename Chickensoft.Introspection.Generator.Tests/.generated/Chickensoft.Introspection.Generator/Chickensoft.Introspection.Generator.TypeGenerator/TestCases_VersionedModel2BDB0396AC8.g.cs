@@ -2,7 +2,7 @@
 #nullable enable
 namespace Chickensoft.Introspection.Generator.Tests.TestCases;
 
-partial record class VersionedModel2 : Chickensoft.Introspection.IIntrospective {
+partial record class VersionedModel2 : Chickensoft.Introspection.IIntrospectiveRef {
   [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
   public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
   

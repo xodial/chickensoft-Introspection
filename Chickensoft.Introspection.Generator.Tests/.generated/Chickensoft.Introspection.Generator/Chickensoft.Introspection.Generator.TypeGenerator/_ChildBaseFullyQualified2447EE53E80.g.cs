@@ -4,7 +4,7 @@ namespace OtherNamespace.Altogether;
 
 using Chickensoft.Introspection;
 
-partial class ChildBaseFullyQualified2 : Chickensoft.Introspection.IIntrospective {
+partial class ChildBaseFullyQualified2 : Chickensoft.Introspection.IIntrospectiveRef {
   [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
   public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
   

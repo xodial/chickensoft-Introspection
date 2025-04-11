@@ -6,7 +6,7 @@ using Chickensoft.Introspection;
 
 partial class Container {
   partial class Container2 {
-    partial class DeeplyNestedBaseClass : Chickensoft.Introspection.IIntrospective {
+    partial class DeeplyNestedBaseClass : Chickensoft.Introspection.IIntrospectiveRef {
       [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
       public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
       

@@ -79,8 +79,7 @@ public class TypeGenerator : IIncrementalGenerator {
         .Select(
           // Combine non-unique type entries together.
           group => group.Aggregate(
-            (DeclaredType typeA, DeclaredType typeB) =>
-              typeA.MergePartialDefinition(typeB)
+            (typeA, typeB) => typeA.MergePartialDefinition(typeB)
           )
         )
         .Where(type => type.Kind != DeclaredTypeKind.Error)
@@ -117,8 +116,8 @@ public class TypeGenerator : IIncrementalGenerator {
     context.RegisterSourceOutput(
       source: incrementalGenerationData,
       action: static (
-        SourceProductionContext context,
-        DeclaredTypeRegistry registry
+        context,
+        registry
       ) => {
         if (OutputMetatypesAndReportDiagnostics(context, registry)) {
           GenerateTypeRegistry(context, registry);
@@ -248,7 +247,11 @@ public class TypeGenerator : IIncrementalGenerator {
           reference: baseTypeReference
         );
 
-        if (currentType is not null) {
+        if (
+          currentType is not null and not DeclaredType {
+            Kind: DeclaredTypeKind.Interface
+          }
+        ) {
           baseTypes.Add(currentType);
           continue;
         }
@@ -400,7 +403,7 @@ public class TypeGenerator : IIncrementalGenerator {
     typeDecl.TypeParameterList?.Parameters
       .Select(p => p.Identifier.ValueText)
       .ToImmutableArray()
-      ?? ImmutableArray<string>.Empty;
+      ?? [];
 
   /// <summary>
   /// True if the type declaration is explicitly marked as visible at the
@@ -437,7 +440,8 @@ public class TypeGenerator : IIncrementalGenerator {
     ) {
       if (parent is BaseNamespaceDeclarationSyntax @namespace) {
         foreach (
-          var namespacePart in @namespace.Name.ToString().Split('.').Reverse()
+          var namespacePart in @namespace.Name
+            .ToString().Split('.').AsEnumerable().Reverse()
         ) {
           namespaces.AddFirst(namespacePart);
         }
@@ -446,7 +450,7 @@ public class TypeGenerator : IIncrementalGenerator {
         var typeParameters = type.TypeParameterList?.Parameters
             .Select(p => p.Identifier.ValueText)
             .ToImmutableArray()
-            ?? ImmutableArray<string>.Empty;
+            ?? [];
 
         var construction = GetConstruction(type);
         var isPartial = IsPartial(type);
@@ -463,8 +467,8 @@ public class TypeGenerator : IIncrementalGenerator {
     }
 
     return new TypeLocation(
-      namespaces.ToImmutableArray(),
-      types.ToImmutableArray()
+      [.. namespaces],
+      [.. types]
     );
   }
 
@@ -480,7 +484,7 @@ public class TypeGenerator : IIncrementalGenerator {
         allUsings = allUsings.AddRange(comp.Usings);
       }
     }
-    return allUsings
+    return [.. allUsings
       // `Name` will be null if used as an alias for a tuple (unrelated to
       // the using import directive).
       //
@@ -488,7 +492,7 @@ public class TypeGenerator : IIncrementalGenerator {
       // introduced after Microsoft.CodeAnalysis.CSharp v4.4.0 which would
       // reference the tuple aliasing.
       .Where(@using => @using.Name is not null)
-      .Select(GetUsing).ToImmutableHashSet();
+      .Select(GetUsing)];
   }
 
   public static UsingDirective GetUsing(UsingDirectiveSyntax @using) =>
@@ -572,7 +576,7 @@ public class TypeGenerator : IIncrementalGenerator {
               .Select(arg => arg.Expression)
               .OfType<TypeOfExpressionSyntax>()
               .Select(arg => arg.Type.NormalizeWhitespace().ToString())
-              .ToImmutableArray() ?? ImmutableArray<string>.Empty
+              .ToImmutableArray() ?? []
           );
         }
       }

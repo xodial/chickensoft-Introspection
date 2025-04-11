@@ -5,7 +5,7 @@ namespace BaseClasses.A.B.UsingDeeplyNamespaced;
 using BaseClasses.A.B.DeeplyNamespaced;
 using Chickensoft.Introspection;
 
-partial class SomeChild : Chickensoft.Introspection.IIntrospective {
+partial class SomeChild : Chickensoft.Introspection.IIntrospectiveRef {
   [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
   public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
   

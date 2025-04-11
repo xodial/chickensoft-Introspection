@@ -8,7 +8,9 @@ using System;
 /// (referred to as a metatype) will be generated at compile-time by the
 /// introspection generator.
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+[AttributeUsage(
+  AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false
+)]
 public sealed class MetaAttribute : Attribute {
 
   /// <summary>

@@ -2,16 +2,13 @@
 #nullable enable
 namespace Chickensoft.Introspection.Generator.Tests.TestCases;
 
-partial record class NoId : Chickensoft.Introspection.IIntrospectiveRef {
+partial record struct OtherValueType : Chickensoft.Introspection.IIntrospective, IMyMixin {
   [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-  public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
-  
-  [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-  public Chickensoft.Introspection.IMetatype Metatype => ((Chickensoft.Introspection.IIntrospectiveTypeMetadata)Chickensoft.Introspection.Types.Graph.GetMetadata(typeof(NoId))).Metatype;
+  public Chickensoft.Introspection.IMetatype Metatype => ((Chickensoft.Introspection.IIntrospectiveTypeMetadata)Chickensoft.Introspection.Types.Graph.GetMetadata(typeof(OtherValueType))).Metatype;
   
   public class MetatypeMetadata : Chickensoft.Introspection.IMetatype {
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public System.Type Type => typeof(NoId);
+    public System.Type Type => typeof(OtherValueType);
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public bool HasInitProperties { get; } = false;
     
@@ -22,22 +19,24 @@ partial record class NoId : Chickensoft.Introspection.IIntrospectiveRef {
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public System.Collections.Generic.IReadOnlyDictionary<System.Type, System.Attribute[]> Attributes { get; } = new System.Collections.Generic.Dictionary<System.Type, System.Attribute[]>() {
       [typeof(MetaAttribute)] = new System.Attribute[] {
-        new MetaAttribute()
+        new MetaAttribute(typeof(IMyMixin))
       }
     };
     
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public System.Collections.Generic.IReadOnlyList<System.Type> Mixins { get; } = new System.Collections.Generic.List<System.Type>() {
+      typeof(IMyMixin)
     };
     
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public System.Collections.Generic.IReadOnlyDictionary<System.Type, System.Action<object>> MixinHandlers { get; } = new System.Collections.Generic.Dictionary<System.Type, System.Action<object>>() {
+      [typeof(IMyMixin)] = static (obj) => ((IMyMixin)obj).Handler()
     };
     
     
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public object Construct(System.Collections.Generic.IReadOnlyDictionary<string, object?>? args = null) {
-      return new NoId();
+      return new OtherValueType();
     }
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public override bool Equals(object obj) => true;

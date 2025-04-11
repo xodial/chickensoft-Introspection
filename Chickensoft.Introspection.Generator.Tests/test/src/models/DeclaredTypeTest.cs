@@ -1,6 +1,5 @@
 namespace Chickensoft.Introspection.Generator.Tests.Models;
 
-using System.Collections.Immutable;
 using Chickensoft.Introspection.Generator.Models;
 using Shouldly;
 using Xunit;
@@ -11,34 +10,32 @@ public class DeclaredTypeTest {
     "SomeType",
     Construction: Construction.Class,
     IsPartial: true,
-    TypeParameters: ImmutableArray<string>.Empty
+    TypeParameters: []
   ),
   SyntaxLocation: Microsoft.CodeAnalysis.Location.None,
   Location: new TypeLocation(
-    Namespaces: ImmutableArray<string>.Empty,
-    ContainingTypes: ImmutableArray<TypeReference>.Empty
+    Namespaces: [],
+    ContainingTypes: []
   ),
   BaseType: null,
-  Usings: ImmutableHashSet<UsingDirective>.Empty,
+  Usings: [],
   Kind: DeclaredTypeKind.ConcreteType,
   IsStatic: false,
   IsPublicOrInternal: true,
-  Properties: ImmutableArray<DeclaredProperty>.Empty,
-  Attributes: ImmutableArray<DeclaredAttribute>.Empty,
-  Mixins: ImmutableArray<string>.Empty
+  Properties: [],
+  Attributes: [],
+  Mixins: []
 );
 
   [Fact]
   public void Version() {
     var type = _type with {
-      Attributes = ImmutableArray.Create(
-        new DeclaredAttribute(
+      Attributes = [new DeclaredAttribute(
           Name: Constants.VERSION_ATTRIBUTE_NAME,
           ConstructorArgs:
-          new[] { "a" }.ToImmutableArray(),
-          InitializerArgs: new[] { "b" }.ToImmutableArray()
-        )
-      )
+          ["a"],
+          InitializerArgs: ["b"]
+        )]
     };
 
     type.Version.ShouldBe(1);
@@ -48,13 +45,11 @@ public class DeclaredTypeTest {
   public void MergePartialPicksCorrectSyntaxLocation() {
     var type = _type with {
       SyntaxLocation = Microsoft.CodeAnalysis.Location.None,
-      Attributes = ImmutableArray.Create(
-        new DeclaredAttribute(
+      Attributes = [new DeclaredAttribute(
           Name: Constants.INTROSPECTIVE_ATTRIBUTE_NAME,
-          ConstructorArgs: ImmutableArray<string>.Empty,
-          InitializerArgs: ImmutableArray<string>.Empty
-        )
-      )
+          ConstructorArgs: [],
+          InitializerArgs: []
+        )]
     };
 
     var other = _type with {
@@ -113,13 +108,11 @@ public class DeclaredTypeTest {
   public void HasFallbackId() {
     var type = _type with {
       SyntaxLocation = Microsoft.CodeAnalysis.Location.None,
-      Attributes = ImmutableArray.Create(
-        new DeclaredAttribute(
+      Attributes = [new DeclaredAttribute(
           Name: Constants.ID_ATTRIBUTE_NAME,
-          ConstructorArgs: ImmutableArray.Create("id"),
-          InitializerArgs: ImmutableArray<string>.Empty
-        )
-      )
+          ConstructorArgs: ["id"],
+          InitializerArgs: []
+        )]
     };
 
     var writer = TypeGenerator.CreateCodeWriter();
@@ -128,5 +121,44 @@ public class DeclaredTypeTest {
     _type.WriteMetadata(writer, true);
 
     writer.InnerWriter.ToString().ShouldBeOfType<string>();
+  }
+
+  [Theory]
+  [InlineData(
+    DeclaredTypeKind.ConcreteType,
+    DeclaredTypeKind.ConcreteType,
+    DeclaredTypeKind.ConcreteType
+  )]
+  [InlineData(
+    DeclaredTypeKind.AbstractType,
+    DeclaredTypeKind.ConcreteType,
+    DeclaredTypeKind.AbstractType
+  )]
+  [InlineData(
+    DeclaredTypeKind.ConcreteType,
+    DeclaredTypeKind.AbstractType,
+    DeclaredTypeKind.AbstractType
+  )]
+  [InlineData(
+    DeclaredTypeKind.StaticClass,
+    DeclaredTypeKind.ConcreteType,
+    DeclaredTypeKind.StaticClass
+  )]
+  [InlineData(
+    DeclaredTypeKind.ConcreteType,
+    DeclaredTypeKind.StaticClass,
+    DeclaredTypeKind.StaticClass
+  )]
+  [InlineData(
+    DeclaredTypeKind.Error,
+    DeclaredTypeKind.ConcreteType,
+    DeclaredTypeKind.Error
+  )]
+  public void PickDeclaredTypeKind(
+    DeclaredTypeKind kind,
+    DeclaredTypeKind other,
+    DeclaredTypeKind expected
+  ) {
+    DeclaredType.PickDeclaredTypeKind(kind, other).ShouldBe(expected);
   }
 }

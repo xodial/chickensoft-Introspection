@@ -6,7 +6,7 @@ using Chickensoft.Introspection;
 using X = OtherNamespace.Altogether.A;
 using Y = OtherNamespace.Altogether.A.B;
 
-partial class ExtendsTypeFromSomewhereElse : Chickensoft.Introspection.IIntrospective {
+partial class ExtendsTypeFromSomewhereElse : Chickensoft.Introspection.IIntrospectiveRef {
   [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
   public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
   

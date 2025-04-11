@@ -7,6 +7,8 @@ public static class Constants {
   public const string VERSION_ATTRIBUTE_NAME = "Version";
   public const string INTROSPECTIVE =
     "Chickensoft.Introspection.IIntrospective";
+  public const string INTROSPECTIVE_REF =
+    "Chickensoft.Introspection.IIntrospectiveRef";
   public const string IDENTIFIABLE =
     "Chickensoft.Introspection.IIdentifiable";
   public const string MIXIN_BLACKBOARD = "Chickensoft.Introspection.MixinBlackboard";

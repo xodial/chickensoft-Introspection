@@ -1,6 +1,6 @@
 # 🔮 Introspection
 
-[![Chickensoft Badge][chickensoft-badge]][chickensoft-website] [![Discord][discord-badge]][discord] [![Read the docs][read-the-docs-badge]][docs] ![line coverage][line-coverage] ![branch coverage][branch-coverage]
+[![Chickensoft Badge][chickensoft-badge]][chickensoft-website] [![Discord][discord-badge]][discord] ![line coverage][line-coverage] ![branch coverage][branch-coverage]
 
 Create mixins and generate metadata about types at build time to enable reflection in ahead-of-time (AOT) environments.
 
@@ -53,6 +53,9 @@ You don't need to fully understand this package to make the most of it. In fact,
 - 💉 [AutoInject] uses this tool to allow you to add mixins to classes at build-time and invoke their methods at runtime without reflection. It also leverages this to read attributes on types without having to use reflection.
 - 💡 [LogicBlocks] uses this tool to look up possible states for a state machine so it can pre-allocate them at runtime without needing reflection.
 
+> [!NOTE]
+> In general, you will typically just include this project and its source generator in your project so that other tools can make use of the generated metadata about the types in your project. For those interested in building metaprogramming tools which leverage this package, read on!
+
 The introspection generator is designed to be performant as a project grows. The generator only uses syntax information to generate metadata, rather than relying on the C# analyzer's symbol data, which can be very slow.
 
 > [!NOTE]
@@ -81,11 +84,11 @@ The generator will generate a [type registry] for your assembly that lists every
 
 The generated registry automatically registers types with the Introspection library's [type graph] using a [module initializer], so no action is needed on the developer's part. The module initializer registration process also performs some logic at runtime to resolve the type graph and cache the type hierarchy in a way that makes it performant to lookup. This preprocessing runs in roughly linear time and is negligible.
 
-All introspective types must be a class or record, partial, visible from the global scope. Introspective types cannot be generic.
+All introspective types must be a class, record, struct, or record struct. They must also be partial and visible from the global scope (nesting inside other types is allowed if all nested types are visible from the global scope and partial). **Introspective types cannot be generic** — this is an intentional limitation.
 
 ### 🪪 Identifiable Types
 
-An introspective type can also be an identifiable type if it is given the `[Id]` attribute. Identifiable types get additional metadata generated about them, allowing them to be looked up by their identifier.
+An introspective type can also be an _identifiable_ type if it is given the `[Id]` attribute. Identifiable types get additional metadata generated about them, allowing them to be looked up by their identifier. Identifiable types can be used to create a [serialization][Serialization] system, since id's are strings which should be kept stable even if the type itself is renamed.
 
 ```csharp
   [Meta, Id("my_type")]
@@ -94,7 +97,7 @@ An introspective type can also be an identifiable type if it is given the `[Id]`
 
 ### ⤵️ The Type Graph
 
-The type graph can be used to query information about types at runtime. If the type graph has to compute a query, the results are cached for all future queries. Most api's are simple O(1) lookups.
+The type graph can be used to query information about types at runtime. If the type graph has to compute a query, the results are cached for all future queries. Most api's are simple `O(1)` lookups.
 
 ```csharp
 
@@ -117,11 +120,19 @@ var properties = Types.Graph.GetProperties(typeof(Model));
 
 ### 👯‍♀️ Versioning
 
-All concrete introspective types have a simple integer version associated with them. By default, the version is `1`. You can use the `[Version]` attribute to denote the version of an introspective type.
+All concrete (not abstract) introspective types have a simple integer version associated with them. By default, the version is `1`. You can use the `[Version]` attribute to denote the version of introspective reference types.
 
 ```csharp
 [Meta, Version(2)]
 public partial class MyType;
+```
+
+A single identifiable type can have multiple versions. Each version is indicated by making another type which extends it and denotes its version with the `[Version]` attribute.
+
+> [!CAUTION]
+> **Value types cannot be versioned since C# does not support struct inheritance.**.
+
+```csharp
 
 // Or, multiple versions of the same identifiable type.
 
@@ -138,7 +149,7 @@ public class MyType2 : MyType;
 public class MyType3 : MyType;
 ```
 
-During type registration, the type graph will "promote" introspective types which inherit from an identifiable type to an identifiable type themselves, sharing the same identifier as their parent or ancestor identifiable type. Promoted identifiable types must, however, have uniquely specified versions.
+During type registration, the type graph will "promote" introspective types which inherit from an identifiable type to an identifiable type themselves, sharing the same identifier as their parent or ancestor identifiable type. Promoted identifiable types must, however, have uniquely specified versions. For example, the types shown above (`MyType1`, `MyType2`, and `MyType3`) would be promoted at runtime by the type graph when the application first starts, allowing them to be seen as the same identifiable type as their parent, `MyType`. Fortunately, this all happens automatically.
 
 ## 🔎 Metadata Types
 
@@ -203,30 +214,90 @@ if (metadata is IIdentifiableTypeMetadata idMetadata) {
 }
 ```
 
-## Δ Metatypes
+The metadata type hierarchy is admittedly quite crazy, but extremely useful since it allows tools built on this library to understand what information is available about a type depending on how it was attributed with `[Meta]`, `[Id]`, or `[Version]` attributes (or not at all). In the class diagram below, solid lines indicate inheritance, while dashed lines indicate interface implementation.
 
-The introspection generator generates additional metadata for introspective and identifiable types known as a "metatype." A type's metatype information can be accessed from its metadata.
-
-```csharp
-var metadata = Types.Graph.GetMetadata(typeof(Model));
-
-if (metadata is IIntrospectiveTypeMetadata introMetadata) {
-  var metatype = introMetadata.Metatype;
-
-  foreach (var attribute in metatype.Attributes) {
-    // Iterate the attributes on an introspective type.
-  }
-
-  foreach (var property in metatype.Properties) {
-    // Iterate the properties of an introspective type.
-    if (property.Setter is { } setter) {
-      // We can set the value of the property.
-      setter(obj, value);
+```mermaid
+classDiagram
+    %% ─── Interfaces ──────────────────────────────────────
+    class ITypeMetadata {
+        +string Name
     }
 
-    // etc.
-  }
-}
+    class IClosedTypeMetadata {
+        +Action<ITypeReceiver> GenericTypeGetter
+    }
+    ITypeMetadata <|-- IClosedTypeMetadata
+
+    class IConcreteTypeMetadata {
+        +Func<object> Factory
+    }
+    IClosedTypeMetadata <|-- IConcreteTypeMetadata
+
+    class IIntrospectiveTypeMetadata {
+        +IMetatype Metatype
+    }
+    IClosedTypeMetadata <|-- IIntrospectiveTypeMetadata
+
+    class IConcreteIntrospectiveTypeMetadata {
+        +int Version
+    }
+    IIntrospectiveTypeMetadata <|-- IConcreteIntrospectiveTypeMetadata
+    IConcreteTypeMetadata <|-- IConcreteIntrospectiveTypeMetadata
+
+    class IIdentifiableTypeMetadata {
+        +string Id
+    }
+    IIntrospectiveTypeMetadata <|-- IIdentifiableTypeMetadata
+
+
+    %% ─── Records / concrete types ────────────────────────
+    class TypeMetadata {
+        +string Name
+    }
+    ITypeMetadata <|.. TypeMetadata
+
+    class ConcreteTypeMetadata {
+        +Action<ITypeReceiver> GenericTypeGetter
+        +Func<object> Factory
+    }
+    TypeMetadata <|-- ConcreteTypeMetadata
+    IConcreteTypeMetadata <|.. ConcreteTypeMetadata
+
+    class AbstractIntrospectiveTypeMetadata {
+        +Action<ITypeReceiver> GenericTypeGetter
+        +IMetatype Metatype
+    }
+    TypeMetadata <|-- AbstractIntrospectiveTypeMetadata
+    IIntrospectiveTypeMetadata <|.. AbstractIntrospectiveTypeMetadata
+
+    class IntrospectiveTypeMetadata {
+        +Action<ITypeReceiver> GenericTypeGetter
+        +Func<object> Factory
+        +IMetatype Metatype
+        +int Version
+    }
+    ConcreteTypeMetadata <|-- IntrospectiveTypeMetadata
+    IConcreteIntrospectiveTypeMetadata <|.. IntrospectiveTypeMetadata
+
+    class AbstractIdentifiableTypeMetadata {
+        +Action<ITypeReceiver> GenericTypeGetter
+        +IMetatype Metatype
+        +string Id
+    }
+    AbstractIntrospectiveTypeMetadata <|-- AbstractIdentifiableTypeMetadata
+    IIdentifiableTypeMetadata <|.. AbstractIdentifiableTypeMetadata
+
+    class IdentifiableTypeMetadata {
+        +Action<ITypeReceiver> GenericTypeGetter
+        +Func<object> Factory
+        +IMetatype Metatype
+        +string Id
+        +int Version
+    }
+    IntrospectiveTypeMetadata <|-- IdentifiableTypeMetadata
+    IIdentifiableTypeMetadata <|.. IdentifiableTypeMetadata
+    IConcreteIntrospectiveTypeMetadata <|.. IdentifiableTypeMetadata
+
 ```
 
 Metatype data provides information about a specific type, its properties, and attributes. The type graph combines metatype information with its understanding of the type hierarchy to enable you to fetch all properties of an introspective type, including those it inherited from other introspective types. Metatypes will only contain information about the type itself, not anything it inherits from.
@@ -235,11 +306,14 @@ To see all of the information that a metatype exposes, please see the [Metatype 
 
 ## 🎛️ Mixins
 
-The introspection generator allows you to create mixins to add additional functionality to the type they are applied to. Unlike [default interface method implementations], mixins are able to add _[instance state]_ via a [blackboard]. Every introspective type has a `MixinState` blackboard which allows mixins to add instance data to the type they are applied to.
+The introspection generator allows you to create mixins on introspective reference types to add additional functionality to the type. Unlike [default interface method implementations], mixins are able to add _[instance state]_ via a [blackboard]. Every introspective reference type has a `MixinState` blackboard which allows mixins to add instance data to the type they are applied to.
 
 Additionally, mixins must implement a single handler method. An introspective type's `Metatype` has a `Mixins` property containing a list of mixin types that were applied to it. Additionally, a `MixinHandler` table is provided which maps the mixin type to a closure which invokes the mixin's handler.
 
-Introspective type instances can also cast themselves to `IIntrospective` to invoke a given mixin easily.
+Introspective type instances can also cast themselves to `IIntrospectiveRef` to invoke a given mixin easily.
+
+> [!WARNING]
+> Value types do not support mixins.
 
 ```csharp
 // Declare a mixin
@@ -255,11 +329,45 @@ public partial class MyModel {
   // Use mixins
   public void MyMethod() {
     // Call all applied mixin handlers
-    (this as IIntrospective).InvokeMixins();
+    (this as IIntrospectiveRef).InvokeMixins();
 
     // Call a specific mixin handler
-    (this as IIntrospective).InvokeMixin(typeof(IMyMixin));
+    (this as IIntrospectiveRef).InvokeMixin(typeof(IMyMixin));
   }
+}
+```
+
+## 🥞 Value Types
+
+The introspection generator can generate metadata about value types, too.
+
+> [!CAUTION]
+> **Value types do not support versioning or mixins.**
+>
+> Mixins _could have_ been supported, but we chose not to support them since they would add a heap-allocated object to each value type, defeating the memory performance gains that value types provide.
+
+```csharp
+[Meta]
+public readonly partial record struct ValueType {
+  public required int Number { get; init; }
+  public string? Description { get; init; }
+}
+
+[Meta, Id("value_type_with_id")]
+public readonly partial record struct ValueTypeWithId {
+  public required int Number { get; init; }
+  public string? Description { get; init; }
+}
+```
+
+Likewise, you can introspect a value type the same as other introspective types:
+
+```csharp
+// Get a type's properties
+var properties = Types.Graph.GetProperties(typeof(ValueType));
+
+foreach (var property in properties) {
+  // ... do something with the properties of the type
 }
 ```
 
@@ -267,13 +375,11 @@ public partial class MyModel {
 
 🐣 Package generated from a 🐤 Chickensoft Template — <https://chickensoft.games>
 
-[chickensoft-badge]: https://raw.githubusercontent.com/chickensoft-games/chickensoft_site/main/static/img/badges/chickensoft_badge.svg
+[chickensoft-badge]: https://chickensoft.games/img/badges/chickensoft_badge.svg
 [chickensoft-website]: https://chickensoft.games
 [philosophy]: https://chickensoft.games/philosophy
-[discord-badge]: https://raw.githubusercontent.com/chickensoft-games/chickensoft_site/main/static/img/badges/discord_badge.svg
+[discord-badge]: https://chickensoft.games/img/badges/discord_badge.svg
 [discord]: https://discord.gg/gSjaPgMmYW
-[read-the-docs-badge]: https://raw.githubusercontent.com/chickensoft-games/chickensoft_site/main/static/img/badges/read_the_docs_badge.svg
-[docs]: https://chickensoft.games/docs/
 [line-coverage]: Chickensoft.Introspection.Tests/badges/line_coverage.svg
 [branch-coverage]: Chickensoft.Introspection.Tests/badges/branch_coverage.svg
 

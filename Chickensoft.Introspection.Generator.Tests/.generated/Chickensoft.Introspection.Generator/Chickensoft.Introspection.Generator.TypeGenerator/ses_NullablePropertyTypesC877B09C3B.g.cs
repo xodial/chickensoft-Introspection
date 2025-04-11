@@ -7,7 +7,7 @@ using Chickensoft.Introspection.Generator.Tests.TestUtils;
 using System;
 using System.Collections.Generic;
 
-partial class NullablePropertyTypes : Chickensoft.Introspection.IIntrospective {
+partial class NullablePropertyTypes : Chickensoft.Introspection.IIntrospectiveRef {
   [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
   public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
   

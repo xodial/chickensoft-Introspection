@@ -5,7 +5,7 @@ namespace Chickensoft.Introspection.Generator.Tests.TestCases;
 partial class OuterContainer {
   partial class MidContainer {
     partial class AInnerContainer {
-      partial class AOtherModel : Chickensoft.Introspection.IIntrospective {
+      partial class AOtherModel : Chickensoft.Introspection.IIntrospectiveRef {
         [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
         

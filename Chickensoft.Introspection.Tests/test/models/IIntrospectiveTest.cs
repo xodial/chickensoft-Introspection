@@ -29,7 +29,7 @@ public class IIntrospectiveTest {
 
   [Fact]
   public void MixinIsCalled() {
-    IIntrospective myType = new MyTypeWithAMixin();
+    IIntrospectiveRef myType = new MyTypeWithAMixin();
     myType.InvokeMixin(typeof(IMixin1));
 
     Called1.ShouldBeTrue();
@@ -37,7 +37,7 @@ public class IIntrospectiveTest {
 
   [Fact]
   public void AllMixinsCalled() {
-    IIntrospective myType = new MyTypeWithAMixin();
+    IIntrospectiveRef myType = new MyTypeWithAMixin();
     myType.InvokeMixins();
 
     Called1.ShouldBeTrue();
@@ -46,7 +46,7 @@ public class IIntrospectiveTest {
 
   [Fact]
   public void ThrowsOnMissingMixin() {
-    IIntrospective myType = new MyTypeWithAMixin();
+    IIntrospectiveRef myType = new MyTypeWithAMixin();
     Should.Throw<InvalidOperationException>(
       () => myType.InvokeMixin(typeof(IIntrospectiveTest))
     );

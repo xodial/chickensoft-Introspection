@@ -2,7 +2,7 @@
 #nullable enable
 namespace Chickensoft.Introspection.Generator.Tests.TestCases;
 
-partial class SomeType : Chickensoft.Introspection.IIntrospective, ISomeMixin {
+partial class SomeType : Chickensoft.Introspection.IIntrospectiveRef, ISomeMixin {
   [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
   public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
   

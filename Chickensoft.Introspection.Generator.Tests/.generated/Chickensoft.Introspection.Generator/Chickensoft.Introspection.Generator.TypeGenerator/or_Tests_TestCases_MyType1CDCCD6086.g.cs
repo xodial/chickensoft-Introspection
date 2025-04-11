@@ -9,7 +9,7 @@ using static System.Console;
 using System.Text;
 using JSON = System.Text.Json;
 
-partial class MyType : Chickensoft.Introspection.IIntrospective, Chickensoft.Introspection.IIdentifiable {
+partial class MyType : Chickensoft.Introspection.IIntrospectiveRef, Chickensoft.Introspection.IIdentifiable {
   [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
   public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
   

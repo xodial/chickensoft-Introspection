@@ -9,7 +9,7 @@ using System;
 /// across all introspective types from every assembly used in your project.
 /// </summary>
 [AttributeUsage(
-  AttributeTargets.Class,
+  AttributeTargets.Class | AttributeTargets.Struct,
   AllowMultiple = false,
   Inherited = true
 )]

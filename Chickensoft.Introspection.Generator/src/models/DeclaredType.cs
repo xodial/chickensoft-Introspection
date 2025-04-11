@@ -346,6 +346,9 @@ public sealed record DeclaredType(
     IndentedTextWriter writer,
     IEnumerable<DeclaredType> baseTypes
   ) {
+    var isValueType = Reference.Construction is
+      Construction.RecordStruct or Construction.Struct;
+
     if (!string.IsNullOrEmpty(Location.Namespace)) {
       writer.WriteLine($"namespace {Location.Namespace};\n");
     }
@@ -386,19 +389,25 @@ public sealed record DeclaredType(
       .Where(prop => prop.IsInit || prop.IsRequired)
       .ToArray();
 
+    var introspectiveInterface = isValueType
+      ? Constants.INTROSPECTIVE
+      : Constants.INTROSPECTIVE_REF;
+
     // Nest inside us.
     writer.WriteLine(
       $"{Reference.CodeString} : " +
-      $"{Constants.INTROSPECTIVE}{identifiable}{mixins} {{"
+      $"{introspectiveInterface}{identifiable}{mixins} {{"
     );
     writer.Indent++;
 
-    // Add a mixin state bucket to the type itself.
-    writer.WriteLine($"[{Constants.EXCLUDE_COVERAGE}]");
-    writer.WriteLine(
-      $"public {Constants.MIXIN_BLACKBOARD} MixinState {{ get; }} = new();"
-    );
-    writer.WriteLine();
+    if (!isValueType) {
+      // Add a mixin state bucket to the type itself.
+      writer.WriteLine($"[{Constants.EXCLUDE_COVERAGE}]");
+      writer.WriteLine(
+        $"public {Constants.MIXIN_BLACKBOARD} MixinState {{ get; }} = new();"
+      );
+      writer.WriteLine();
+    }
 
     // Add a metatype accessor to the type for convenience
     writer.WriteLine($"[{Constants.EXCLUDE_COVERAGE}]");
