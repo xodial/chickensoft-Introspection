@@ -6,7 +6,7 @@ using Chickensoft.Introspection;
 using Chickensoft.Introspection.Generator.Tests.TestUtils;
 
 partial class MyContainerClass {
-  partial record class MyModel : Chickensoft.Introspection.IIntrospective, Chickensoft.Introspection.IIdentifiable, IMyMixin, IMySecondMixin {
+  partial record class MyModel : Chickensoft.Introspection.IIntrospectiveRef, Chickensoft.Introspection.IIdentifiable, IMyMixin, IMySecondMixin {
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
     

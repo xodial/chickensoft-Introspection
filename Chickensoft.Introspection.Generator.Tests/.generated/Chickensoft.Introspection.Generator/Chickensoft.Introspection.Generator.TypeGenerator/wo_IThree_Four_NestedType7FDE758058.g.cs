@@ -13,7 +13,7 @@ static partial class One {
   partial record struct Two {
     partial interface IThree {
       partial record class Four {
-        partial class NestedType : Chickensoft.Introspection.IIntrospective, Chickensoft.Introspection.IIdentifiable {
+        partial class NestedType : Chickensoft.Introspection.IIntrospectiveRef, Chickensoft.Introspection.IIdentifiable {
           [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
           public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
           

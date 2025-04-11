@@ -12,7 +12,7 @@ using System.Linq;
 using Xunit;
 
 partial class TypeGraphMemberMetadataTest {
-  partial class Model : Chickensoft.Introspection.IIntrospective {
+  partial class Model : Chickensoft.Introspection.IIntrospectiveRef {
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
     

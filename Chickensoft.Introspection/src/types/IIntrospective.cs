@@ -8,15 +8,21 @@ using System;
 /// </summary>
 public interface IIntrospective {
   /// <summary>
+  /// Generated metatype information.
+  /// </summary>
+  IMetatype Metatype { get; }
+}
+
+/// <summary>
+/// Interface applied to a type to introspective reference types. Introspective
+/// reference types support mixins.
+/// </summary>
+public interface IIntrospectiveRef : IIntrospective {
+  /// <summary>
   /// Arbitrary data that is shared between mixins. Mixins are free to store
   /// additional instance state in this blackboard.
   /// </summary>
   MixinBlackboard MixinState { get; }
-
-  /// <summary>
-  /// Generated metatype information.
-  /// </summary>
-  public IMetatype Metatype { get; }
 
   /// <summary>
   /// Determines if the type has a mixin applied to it.
@@ -24,12 +30,12 @@ public interface IIntrospective {
   /// <param name="type">Type of mixin to look for.</param>
   /// <returns>True if the type has the specified mixin, false otherwise.
   /// </returns>
-  public bool HasMixin(Type type) => Metatype.MixinHandlers.ContainsKey(type);
+  bool HasMixin(Type type) => Metatype.MixinHandlers.ContainsKey(type);
 
   /// <summary>
   /// Invokes the handler of each mixin that is applied to the type.
   /// </summary>
-  public void InvokeMixins() {
+  void InvokeMixins() {
     for (var i = 0; i < Metatype.Mixins.Count; i++) {
       Metatype.MixinHandlers[Metatype.Mixins[i]](this);
     }
@@ -40,7 +46,7 @@ public interface IIntrospective {
   /// </summary>
   /// <param name="type">Mixin type.</param>
   /// <exception cref="InvalidOperationException" />
-  public void InvokeMixin(Type type) {
+  void InvokeMixin(Type type) {
     if (!HasMixin(type)) {
       throw new InvalidOperationException(
         $"Type {GetType()} does not have mixin {type}"

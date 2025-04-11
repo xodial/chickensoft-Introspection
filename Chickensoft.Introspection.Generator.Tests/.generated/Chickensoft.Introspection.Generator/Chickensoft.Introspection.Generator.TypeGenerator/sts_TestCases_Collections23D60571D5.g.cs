@@ -5,7 +5,7 @@ namespace Chickensoft.Introspection.Generator.Tests.TestCases;
 using Chickensoft.Introspection.Generator.Tests.TestUtils;
 using System.Collections.Generic;
 
-partial class Collections : Chickensoft.Introspection.IIntrospective {
+partial class Collections : Chickensoft.Introspection.IIntrospectiveRef {
   [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
   public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
   

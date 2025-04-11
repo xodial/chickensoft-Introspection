@@ -5,7 +5,7 @@ namespace BaseClasses.B;
 using BaseClasses.A;
 using Chickensoft.Introspection;
 
-partial class Child : Chickensoft.Introspection.IIntrospective {
+partial class Child : Chickensoft.Introspection.IIntrospectiveRef {
   [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
   public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
   

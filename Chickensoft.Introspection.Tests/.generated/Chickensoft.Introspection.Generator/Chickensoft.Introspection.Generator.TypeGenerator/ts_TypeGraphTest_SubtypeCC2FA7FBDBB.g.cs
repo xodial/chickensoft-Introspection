@@ -12,7 +12,7 @@ using System.Linq;
 using Xunit;
 
 partial class TypeGraphTest {
-  partial class SubtypeC : Chickensoft.Introspection.IIntrospective, Chickensoft.Introspection.IIdentifiable {
+  partial class SubtypeC : Chickensoft.Introspection.IIntrospectiveRef, Chickensoft.Introspection.IIdentifiable {
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
     

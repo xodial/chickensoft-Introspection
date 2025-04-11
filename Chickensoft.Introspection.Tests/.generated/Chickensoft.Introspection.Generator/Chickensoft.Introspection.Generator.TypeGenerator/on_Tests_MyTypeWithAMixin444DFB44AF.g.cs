@@ -6,7 +6,7 @@ using Shouldly;
 using System;
 using Xunit;
 
-partial class MyTypeWithAMixin : Chickensoft.Introspection.IIntrospective, IMixin1, IMixin2 {
+partial class MyTypeWithAMixin : Chickensoft.Introspection.IIntrospectiveRef, IMixin1, IMixin2 {
   [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
   public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
   

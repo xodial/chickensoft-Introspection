@@ -5,7 +5,7 @@ namespace StaticUsings;
 using Chickensoft.Introspection;
 using static OtherNamespace.Altogether.A;
 
-partial class ChildWithStaticBaseRef : Chickensoft.Introspection.IIntrospective {
+partial class ChildWithStaticBaseRef : Chickensoft.Introspection.IIntrospectiveRef {
   [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
   public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
   

@@ -2,7 +2,7 @@
 #nullable enable
 namespace Chickensoft.Introspection.Generator.Tests.TestCases;
 
-partial class AbstractTypeWithVersionIsBad : Chickensoft.Introspection.IIntrospective {
+partial class AbstractTypeWithVersionIsBad : Chickensoft.Introspection.IIntrospectiveRef {
   [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
   public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
   

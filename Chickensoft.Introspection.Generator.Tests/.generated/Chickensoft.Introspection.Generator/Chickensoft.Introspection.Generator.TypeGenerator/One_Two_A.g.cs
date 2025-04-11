@@ -4,7 +4,7 @@ namespace One.Two;
 
 using Chickensoft.Introspection;
 
-partial class A : Chickensoft.Introspection.IIntrospective {
+partial class A : Chickensoft.Introspection.IIntrospectiveRef {
   [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
   public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
   

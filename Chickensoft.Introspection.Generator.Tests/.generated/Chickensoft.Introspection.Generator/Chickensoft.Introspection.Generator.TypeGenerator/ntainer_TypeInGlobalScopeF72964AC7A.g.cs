@@ -3,7 +3,7 @@
 using Chickensoft.Introspection;
 
 partial class GlobalScopeContainer {
-  partial class TypeInGlobalScope : Chickensoft.Introspection.IIntrospective {
+  partial class TypeInGlobalScope : Chickensoft.Introspection.IIntrospectiveRef {
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public Chickensoft.Introspection.MixinBlackboard MixinState { get; } = new();
     
